@@ -19,9 +19,11 @@ import androidx.lifecycle.*
  *  created by zhanghao
  */
 class ZPermission private constructor(private val activity: AppCompatActivity) : Fragment() {
-    private lateinit var vm: VM
     private val requestCode = 9990
     private var permissions: Array<out String>? = null
+    var refusePermissions: ArrayList<String> = arrayListOf()
+    var allowPermissions: ArrayList<String> = arrayListOf()
+    var allow = MutableLiveData<Boolean>()
     private val TAG = this::class.simpleName
 
     override fun onCreateView(
@@ -36,12 +38,11 @@ class ZPermission private constructor(private val activity: AppCompatActivity) :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        vm = ViewModelProviders.of(this.activity).get(VM::class.java)
-        vm.allow.observe(this.activity, Observer {
+        allow.observe(this.activity, Observer {
             if (it) {
                 allowListener.invoke()
             } else {
-                refuseListener.invoke(vm.refusePermissions)
+                refuseListener.invoke(refusePermissions)
             }
         })
 
@@ -106,21 +107,15 @@ class ZPermission private constructor(private val activity: AppCompatActivity) :
                         i
                     ) == PackageManager.PERMISSION_GRANTED
                 ) {
-                    vm.allowPermissions.add(i)
+                    allowPermissions.add(i)
                 } else {
-                    vm.refusePermissions.add(i)
+                    refusePermissions.add(i)
                 }
             }
-            vm.allow.value = permissions.size == vm.allowPermissions.size
+            allow.value = permissions.size == allowPermissions.size
 
             activity.supportFragmentManager.beginTransaction().remove(this).commit()
         }
-    }
-
-    private class VM : ViewModel() {
-        var refusePermissions: ArrayList<String> = arrayListOf()
-        var allowPermissions: ArrayList<String> = arrayListOf()
-        val allow = MutableLiveData<Boolean>()
     }
 
 }

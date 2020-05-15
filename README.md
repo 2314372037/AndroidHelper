@@ -1,7 +1,7 @@
 # zpermission
 #**一个android权限请求辅助类，activity和fragment通用**
 
-###回调在UI线程，使用ViewModel和LiveData，自动生命周期管理
+###回调在UI线程，自动生命周期管理
 
 ####使用方法:
 ```
