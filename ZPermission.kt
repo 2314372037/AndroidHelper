@@ -18,13 +18,16 @@ import androidx.lifecycle.*
  * 自动管理生命周期
  *  created by zhanghao
  */
-class ZPermission private constructor(private val activity: AppCompatActivity) : Fragment() {
+class ZPermission  : Fragment {
+    private lateinit var activity: AppCompatActivity
     private val requestCode = 9990
     private var permissions: Array<out String>? = null
     var refusePermissions: ArrayList<String> = arrayListOf()
     var allowPermissions: ArrayList<String> = arrayListOf()
+    private var allowListener: (() -> Unit)? = null
+    private var refuseListener: ((list: ArrayList<String>?) -> Unit)? = null
     var allow = MutableLiveData<Boolean>()
-    private val TAG = this::class.simpleName
+    private val TAG = "ZPermission"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,46 +39,43 @@ class ZPermission private constructor(private val activity: AppCompatActivity) :
         return view
     }
 
+    constructor()
+
+    private constructor(activity: AppCompatActivity){
+        this.activity=activity
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         allow.observe(this.activity, Observer {
             if (it) {
-                allowListener.invoke()
+                allowListener?.invoke()
+                activity.supportFragmentManager.beginTransaction().remove(this).commit()
             } else {
-                refuseListener.invoke(refusePermissions)
+                refuseListener?.invoke(refusePermissions)
+                activity.supportFragmentManager.beginTransaction().remove(this).commit()
             }
         })
-
-        if (!permissions.isNullOrEmpty()) {
-            requestPermissions(permissions!!, requestCode)
+        if (permissions!=null){
+            requestPermissions(permissions!!,requestCode)
+        }else{
+            activity.supportFragmentManager.beginTransaction().remove(this).commit()
         }
     }
 
-    override fun onDestroyView() {
-        Log.w(TAG, "onDestroyView")
-        super.onDestroyView()
-    }
-
     companion object {
-        private var zPermission: ZPermission? = null
-        private lateinit var allowListener: () -> Unit
-        private lateinit var refuseListener: (list: ArrayList<String>?) -> Unit
-
         fun get(activity: Activity): ZPermission? {
-            if (zPermission == null) {
-                if (activity is AppCompatActivity) {
-                    zPermission = ZPermission(activity)
-                    activity.supportFragmentManager.beginTransaction()
-                        .add(zPermission!!, "permissionF").commit()
-                } else {
-                    Log.w("ZPermission", "警告：传入的Activity不是一个AppCompatActivity类，取消本次请求")
-                    return null
-                }
+            var zPermission:ZPermission? = null
+            if (activity is AppCompatActivity) {
+                zPermission = ZPermission(activity)
+                activity.supportFragmentManager.beginTransaction().add(zPermission,"ZPermissionF").commit()
+            } else {
+                Log.w("ZPermission", "警告：传入的Activity不是一个AppCompatActivity类，取消本次请求")
+                return null
             }
             return zPermission
         }
     }
-
 
     /***
      * 请求权限
@@ -85,12 +85,12 @@ class ZPermission private constructor(private val activity: AppCompatActivity) :
         return this
     }
 
-    fun listener(allow: () -> Unit, refuse: ((list: ArrayList<String>?) -> Unit)? = null) {
+    fun listener(
+        allow: (() -> Unit)? = null,
+        refuse: ((list: ArrayList<String>?) -> Unit)? = null
+    ) {
         allowListener = allow
-
-        if (refuse!=null){
-            refuseListener = refuse
-        }
+        refuseListener = refuse
     }
 
     override fun onRequestPermissionsResult(
@@ -100,6 +100,7 @@ class ZPermission private constructor(private val activity: AppCompatActivity) :
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == requestCode) {
+            var isAllow = true
             for (i in permissions) {
                 //如果授予权限
                 if (ContextCompat.checkSelfPermission(
@@ -109,13 +110,17 @@ class ZPermission private constructor(private val activity: AppCompatActivity) :
                 ) {
                     allowPermissions.add(i)
                 } else {
+                    isAllow=false
                     refusePermissions.add(i)
                 }
             }
-            allow.value = permissions.size == allowPermissions.size
-
-            activity.supportFragmentManager.beginTransaction().remove(this).commit()
+            allow.value = isAllow
         }
+    }
+
+    override fun onDestroyView() {
+        Log.w(TAG, "onDestroyView")
+        super.onDestroyView()
     }
 
 }
