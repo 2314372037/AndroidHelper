@@ -39,7 +39,7 @@ class ZPermission  : Fragment {
         return view
     }
 
-    constructor()
+    private constructor()
 
     private constructor(activity: AppCompatActivity){
         this.activity=activity
