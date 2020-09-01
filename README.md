@@ -16,3 +16,34 @@ ZPermission.get(requireActivity())?.req(
             })
 
 ```
+
+
+
+
+# ViewHelper
+#**一个fragment多状态view帮助kotlin扩展函数**
+
+###使用超级简单！！！
+###两行代码实现指定view状态切换，不需要创建任何变量
+###不需要继承，可以在任意fragment主线程调用showXXX()
+####使用方法:
+```
+xml:
+    给一个view设置tag：android:tag="statusView"
+    <FrameLayout
+        android:tag="statusView"
+        android:background="#407853"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <!--你的内容-->
+    </FrameLayout>
+    
+fragment:
+      showEmpty(R.drawable.pic_empty,"没有数据")//显示到空视图，可以传入图片资源id和文本内容，可不传
+      showLoading()//显示到正在加载视图，可以传入图片资源id和文本内容，可不传
+      showError({//显示到错误视图，可以传入图片资源id和文本内容，可不传，点击页面重新加载监听，必传
+         //重新加载数据
+      })
+      showSuccess()//显示到正常（原）视图
+
+```
