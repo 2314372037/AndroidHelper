@@ -1,9 +1,11 @@
 # zpermission
-#**一个android权限请求辅助类，activity和fragment通用**
 
-###回调在UI线程，自动生命周期管理
+**一个 android 权限请求辅助类，activity 和 fragment 通用**
 
-####使用方法:
+回调在 UI 线程，自动生命周期管理
+
+使用方法:
+
 ```
 ZPermission.get(requireActivity())?.req(
                 Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -17,16 +19,16 @@ ZPermission.get(requireActivity())?.req(
 
 ```
 
-
-
-
 # ViewHelper
-#**一个fragment多状态view帮助kotlin扩展函数**
 
-###使用超级简单！！！
-###两行代码实现指定view状态切换，不需要创建任何变量
-###不需要继承，可以在任意fragment主线程调用showXXX()
-####使用方法:
+**一个 fragment 多状态 view 帮助 kotlin 扩展函数**
+
+使用超级简单！！！
+
+两行代码实现指定 view 状态切换，不需要创建任何变量，不需要继承，可以在任意 fragment 主线程调用 showXXX()
+
+使用方法:
+
 ```
 xml:
     给一个view设置tag：android:tag="statusView"
@@ -37,7 +39,7 @@ xml:
         android:layout_height="match_parent">
         <!--你的内容-->
     </FrameLayout>
-    
+
 fragment:
       showEmpty(R.drawable.pic_empty,"没有数据")//显示到空视图，可以传入图片资源id和文本内容，可不传
       showLoading()//显示到正在加载视图，可以传入图片资源id和文本内容，可不传
