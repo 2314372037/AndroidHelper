@@ -29,9 +29,9 @@ class ViewHelper {
 
     companion object {
         var currentStatus = CURRENT_STATUS.NORMAL
-        val VIEW_TAG = "statusView"//要替换(操作)的view tag
-        val STATUS_VIEW_TAG = "zh2314372037"//状态view的view tag
-        val childViewsVisibility = SparseArray<Int>()//保存contentView的子view原本的显示状态
+        const val VIEW_TAG = "statusView"//要替换(操作)的view tag
+        const val STATUS_VIEW_TAG = "#2314#"//状态view的view tag
+        val visibilityArray = SparseArray<View>()//保存contentView的子view原本的显示状态
     }
 }
 
@@ -54,9 +54,7 @@ fun Fragment.showEmpty(
         val childCount = contentView.childCount
         for (i in 0 until childCount) {
             val tmpView = contentView.getChildAt(i)
-            if (ViewHelper.childViewsVisibility.size() < childCount) {//如果每个子view没有保存状态
-                ViewHelper.childViewsVisibility.put(i,tmpView.visibility)//保存contentView的子view原本的显示状态
-            }
+            ViewHelper.visibilityArray.put(tmpView.visibility,tmpView)//保存contentView的子view原本的显示状态
             tmpView.visibility = View.INVISIBLE//保存子view状态后，全部隐藏掉
         }
 
@@ -110,9 +108,7 @@ fun Fragment.showLoading(
         val childCount = contentView.childCount
         for (i in 0 until childCount) {
             val tmpView = contentView.getChildAt(i)
-            if (ViewHelper.childViewsVisibility.size() < childCount) {//如果每个子view没有保存状态
-                ViewHelper.childViewsVisibility.put(i,tmpView.visibility)//保存contentView的子view原本的显示状态
-            }
+            ViewHelper.visibilityArray.put(tmpView.visibility,tmpView)//保存contentView的子view原本的显示状态
             tmpView.visibility = View.INVISIBLE//保存子view状态后，全部隐藏掉
         }
 
@@ -170,9 +166,7 @@ fun Fragment.showError(
         val childCount = contentView.childCount
         for (i in 0 until childCount) {
             val tmpView = contentView.getChildAt(i)
-            if (ViewHelper.childViewsVisibility.size() < childCount) {//如果每个子view没有保存状态
-                ViewHelper.childViewsVisibility.put(i,tmpView.visibility)//保存contentView的子view原本的显示状态
-            }
+            ViewHelper.visibilityArray.put(tmpView.visibility,tmpView)//保存contentView的子view原本的显示状态
             tmpView.visibility = View.INVISIBLE//保存子view状态后，全部隐藏掉
         }
         val imageView = ImageView(requireContext())
@@ -223,9 +217,11 @@ fun Fragment.showSuccess() {
             val childCount = contentView.childCount
             for (i in 0 until childCount) {
                 val tmpView = contentView.getChildAt(i)
-                tmpView.visibility = ViewHelper.childViewsVisibility.get(i)//获取保存的子view状态，还原原状态
+                //根据view对象获取对应visibility
+                tmpView.visibility=ViewHelper.visibilityArray.indexOfValue(tmpView)//获取保存的子view状态，还原原状态
             }
-            ViewHelper.childViewsVisibility.clear()
+
+            ViewHelper.visibilityArray.clear()
             ViewHelper.currentStatus = ViewHelper.CURRENT_STATUS.NORMAL
         } else {
             Log.d("zzz调试", "无法切换状态到${ViewHelper.currentStatus.name}，tag:${ViewHelper.VIEW_TAG}")
@@ -248,9 +244,7 @@ fun Fragment.initStatusView(view: View):View{
         val childCount = contentView.childCount
         for (i in 0 until childCount) {
             val tmpView = contentView.getChildAt(i)
-            if (ViewHelper.childViewsVisibility.size() < childCount) {//如果每个子view没有保存状态
-                ViewHelper.childViewsVisibility.put(i,tmpView.visibility)//保存contentView的子view原本的显示状态
-            }
+            ViewHelper.visibilityArray.put(tmpView.visibility,tmpView)//保存contentView的子view原本的显示状态
             tmpView.visibility = View.INVISIBLE//保存子view状态后，全部隐藏掉
         }
         ViewHelper.currentStatus = ViewHelper.CURRENT_STATUS.INIT
